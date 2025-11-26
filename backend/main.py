@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any
 import logging
 from datetime import datetime
+import httpx
 
 from config import settings
 from models import (
@@ -73,7 +74,6 @@ async def everbridge_health_check():
         Status of Everbridge API connection
     """
     try:
-        import httpx
         # Try to reach Everbridge API with a simple authenticated request
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(
