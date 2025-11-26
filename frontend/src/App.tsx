@@ -2,12 +2,14 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import TemplateList from './pages/TemplateList';
 import TemplateDetail from './pages/TemplateDetail';
 import NotificationStatus from './pages/NotificationStatus';
+import StatusBar from './components/StatusBar';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="app">
+        <StatusBar />
         <Routes>
           <Route path="/" element={<TemplateList />} />
           <Route path="/template/:templateId" element={<TemplateDetail />} />
