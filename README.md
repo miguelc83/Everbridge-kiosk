@@ -329,6 +329,13 @@ npm run build
 - Comprobar permisos del script: `chmod +x ~/start_kiosk.sh`
 - Revisar logs del sistema: `journalctl -xe`
 
+## 📄 Documentación
+
+- **[README.md](README.md)** - Documentación general del proyecto
+- **[API.md](API.md)** - Documentación completa de la API
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guías de despliegue detalladas
+- **[EVERBRIDGE_INTEGRATION.md](EVERBRIDGE_INTEGRATION.md)** - Guía de integración con API de Everbridge
+
 ## 📄 Licencia
 
 Este proyecto es de código abierto. Consultar con el administrador del repositorio para más detalles.
