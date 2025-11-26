@@ -64,6 +64,48 @@ async def health_check():
     }
 
 
+@app.get("/health/everbridge")
+async def everbridge_health_check():
+    """
+    Check Everbridge API availability.
+    
+    Returns:
+        Status of Everbridge API connection
+    """
+    try:
+        import httpx
+        # Try to reach Everbridge API with a simple authenticated request
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(
+                f"{settings.everbridge_api_url}/organizations/{settings.everbridge_org_id}",
+                auth=(settings.everbridge_username, settings.everbridge_password)
+            )
+            if response.status_code == 200:
+                return {
+                    "status": "healthy",
+                    "everbridge_api": "available",
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+            else:
+                logger.warning(f"Everbridge API returned status {response.status_code}")
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Everbridge API is not responding correctly"
+                )
+    except httpx.TimeoutException:
+        logger.error("Everbridge API connection timeout")
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="Everbridge API connection timeout"
+        )
+    except Exception as e:
+        logger.error(f"Error checking Everbridge API health: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Everbridge API unavailable: {str(e)}"
+        )
+
+
 @app.get("/api/templates", response_model=List[NotificationTemplate])
 async def get_templates():
     """

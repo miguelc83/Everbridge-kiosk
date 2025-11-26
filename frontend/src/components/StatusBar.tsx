@@ -60,14 +60,14 @@ export default function StatusBar() {
 
   const checkEverbridgeServer = async (): Promise<boolean> => {
     try {
-      // Try to reach the backend health endpoint
-      const response = await fetch(`${API_BASE_URL}/health`, {
+      // Try to reach the Everbridge API health endpoint
+      const response = await fetch(`${API_BASE_URL}/health/everbridge`, {
         method: 'GET',
         cache: 'no-cache',
       });
       return response.ok;
     } catch (error) {
-      console.error('Everbridge server check failed:', error);
+      console.error('Everbridge API check failed:', error);
       return false;
     }
   };
