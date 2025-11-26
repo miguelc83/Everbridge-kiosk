@@ -14,7 +14,7 @@ from models import (
     ConfirmationResponse,
     CriticalityLevel
 )
-from everbridge_client import EverbridgeClient
+from everbridge_client import EverbridgeClient, EverbridgeAPIError
 
 # Configure logging
 logging.basicConfig(
@@ -247,6 +247,12 @@ async def send_notification(request: NotificationRequest):
         
     except HTTPException:
         raise
+    except EverbridgeAPIError as e:
+        logger.error(f"Everbridge API error sending notification: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Everbridge API error: {str(e)}"
+        )
     except Exception as e:
         logger.error(f"Error sending notification: {str(e)}")
         raise HTTPException(

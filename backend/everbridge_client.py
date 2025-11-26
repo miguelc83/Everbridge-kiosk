@@ -1,13 +1,18 @@
 """Client for Everbridge API."""
 import httpx
+import re
 from typing import List, Dict, Any, Optional
-from fastapi import HTTPException
 from config import settings
 from models import NotificationTemplate, CriticalityLevel, NotificationStatus
 import logging
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+
+class EverbridgeAPIError(Exception):
+    """Custom exception for Everbridge API errors."""
+    pass
 
 
 class EverbridgeClient:
@@ -128,8 +133,6 @@ class EverbridgeClient:
     
     def _extract_variables(self, message: str) -> Dict[str, Any]:
         """Extract template variables from message text."""
-        import re
-        
         # Find variables in {{variable}} format
         variables = {}
         pattern = r'\{\{(\w+)\}\}'
@@ -238,11 +241,13 @@ class EverbridgeClient:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 logger.info(f"Sending notification using template {template_id} via Everbridge API")
                 
-                # Prepare message with variables replaced
+                # Prepare message with variables replaced using template pattern
                 message = template.message_body or ""
                 if variables:
+                    # Use regex substitution for better performance and safety
                     for key, value in variables.items():
-                        message = message.replace(f"{{{{{key}}}}}", str(value))
+                        pattern = re.compile(re.escape(f"{{{{{key}}}}}"))
+                        message = pattern.sub(str(value), message)
                 
                 # Prepare Everbridge API request
                 # Structure based on Everbridge REST API v12
@@ -283,10 +288,7 @@ class EverbridgeClient:
                     )
                 else:
                     logger.error(f"Everbridge API returned {response.status_code}: {response.text}")
-                    raise HTTPException(
-                        status_code=response.status_code,
-                        detail=f"Everbridge API error: {response.text}"
-                    )
+                    raise EverbridgeAPIError(f"Everbridge API error {response.status_code}: {response.text}")
                 
         except Exception as e:
             logger.error(f"Error sending notification: {str(e)}")
