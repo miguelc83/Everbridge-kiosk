@@ -2,17 +2,20 @@
  * StatusBar Component - Display internet and Everbridge server connectivity status
  */
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../api/client';
 import './StatusBar.css';
 
 interface ConnectionStatus {
   internet: boolean;
   everbridge: boolean;
+  checking: boolean;
 }
 
 export default function StatusBar() {
   const [status, setStatus] = useState<ConnectionStatus>({
-    internet: true,
-    everbridge: true,
+    internet: false,
+    everbridge: false,
+    checking: true,
   });
 
   useEffect(() => {
@@ -37,6 +40,7 @@ export default function StatusBar() {
     setStatus({
       internet: internetStatus,
       everbridge: everbridgeStatus,
+      checking: false,
     });
   };
 
@@ -57,7 +61,7 @@ export default function StatusBar() {
   const checkEverbridgeServer = async (): Promise<boolean> => {
     try {
       // Try to reach the backend health endpoint
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/health`, {
+      const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',
         cache: 'no-cache',
       });
@@ -72,11 +76,11 @@ export default function StatusBar() {
     <div className="status-bar">
       <div className="status-indicators">
         <div className="status-item">
-          <div className={`status-led ${status.internet ? 'status-led-green' : 'status-led-red'}`} />
+          <div className={`status-led ${status.checking ? 'status-led-gray' : status.internet ? 'status-led-green' : 'status-led-red'}`} />
           <span className="status-label">Internet</span>
         </div>
         <div className="status-item">
-          <div className={`status-led ${status.everbridge ? 'status-led-green' : 'status-led-red'}`} />
+          <div className={`status-led ${status.checking ? 'status-led-gray' : status.everbridge ? 'status-led-green' : 'status-led-red'}`} />
           <span className="status-label">Everbridge</span>
         </div>
       </div>
