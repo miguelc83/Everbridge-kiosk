@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: everbridge-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - EVERBRIDGE_API_URL=${EVERBRIDGE_API_URL}
+      - EVERBRIDGE_USERNAME=${EVERBRIDGE_USERNAME}
+      - EVERBRIDGE_PASSWORD=${EVERBRIDGE_PASSWORD}
+      - EVERBRIDGE_ORG_ID=${EVERBRIDGE_ORG_ID}
+      - BACKEND_HOST=0.0.0.0
+      - BACKEND_PORT=8000
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost
+      - ENVIRONMENT=production
+    volumes:
+      - ./backend:/app
+    networks:
+      - everbridge-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: everbridge-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - everbridge-network
+
+networks:
+  everbridge-network:
+    driver: bridge
